@@ -22,12 +22,12 @@ def insert_unk(question):
     random_int = random.randint(0, UNK_RANDOM_RATE)
     if random_int == 1:
         random_int = random.randint(0, len(question) - 2)
-        question[random_int] = "UNK"
+        question[random_int] = u"UNK"
     return question
 
 def load_data(filepath):
-    encoder_metadata = {'idx2w':["EOS", "UNK"], 'w2idx':{}}
-    decoder_metadata = {'idx2w':["EOS"], 'w2idx':{}}
+    encoder_metadata = {'idx2w':[u"PAD", u"UNK", u"EOS"], 'w2idx':{}}
+    decoder_metadata = {'idx2w':[u"SOS", u"PAD", u"EOS"], 'w2idx':{}}
 
     with open(filepath, "r") as fp:
         lines = fp.readlines()
@@ -60,16 +60,16 @@ def load_data(filepath):
                         question = []
                         old_gid = gid
                     question.extend(cut_string(inputstr))
-                    question.append("EOS")
+                    question.append(u"EOS")
                     question = insert_unk(question)
                     cmd_li = re.findall(u"\".+?\"", unicode(cmd))
                     if cmd_li:
                         temp = [i.strip("\"").decode('unicode-escape') for i in cmd_li]
                         respond.extend(temp)
-                        respond.append("EOS")
+                        respond.append(u"EOS")
                     else:
                         respond.extend(cut_string(answer))
-                        respond.append("EOS")
+                        respond.append(u"EOS")
 
                     for w in question:
                         if w not in encoder_metadata['idx2w']:
@@ -107,3 +107,38 @@ def split_dataset(x, y):
     testX, testY = x[-lens[-1]:], y[-lens[-1]:]
 
     return (trainX, trainY), (testX, testY), (validX, validY)
+
+def trans_idx(seqs, w2idx):
+    idx_seqs = []
+    for seq in seqs:
+        idx_seq = []
+        for word in seq:
+            idx = w2idx[word]
+            idx_seq.append(idx)
+        idx_seqs.append(idx_seq)
+    return idx_seqs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
