@@ -68,7 +68,7 @@ def load_data(filepath):
                     question.append(u"EOS")
                     question = insert_unk(question)
                     cmd_li = re.findall(u"\".+?\"", unicode(cmd))
-                    if cmd.find("COMBINE"):
+                    if cmd.find("COMBINE") != -1:
                         cmd_li = [u"COMBINE", u"EOS"]
                     if cmd_li:
                         temp = [i.strip("\"").decode('unicode-escape') for i in cmd_li]

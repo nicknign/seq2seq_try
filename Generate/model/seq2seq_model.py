@@ -94,10 +94,9 @@ class Seq2Seqmodel(object):
 
     def trainModel(self, flags):
         self.saveflags(flags)
-        tf.logging.info("------model train start------")
         self.buildModel(flags)
-
         ###============= train
+        print("------model train start------")
         n_epoch = flags['epochs']
         n_step = int(len(self.trainX) / flags['batch_size'])
         for epoch in range(n_epoch):
@@ -121,7 +120,7 @@ class Seq2Seqmodel(object):
                                    self.target_seqs: _target_seqs,
                                    self.target_mask: _target_mask})
 
-                if n_iter % 5 == 0:
+                if n_iter % flags['print_epochs'] == 0:
                     print("Epoch[%d/%d] step:[%d/%d] loss:%f took:%.5fs" % (
                     epoch + 1, n_epoch, n_iter, n_step, err, time.time() - step_time))
                     step_time = time.time()
@@ -137,7 +136,7 @@ class Seq2Seqmodel(object):
             print("---------------------------------------------------------")
 
             tl.files.save_npz(self.net.all_params, name='{}/net.npz'.format(self.paras_path), sess=self.sess)
-        tf.logging.info("------model train end------")
+        print("------model train end------")
 
     def loadModel(self):
         if os.path.exists("{}/encoder_metadata.pkl".format(self.paras_path)) and \
