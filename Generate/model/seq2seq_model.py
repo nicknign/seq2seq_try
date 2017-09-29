@@ -127,7 +127,7 @@ class Seq2Seqmodel(object):
 
                 total_err += err
                 n_iter += 1
-            print("---Epoch[%d/%d] averaged loss:%f took:%.5fs-------------"
+            print("---Epoch[%d/%d] averaged loss:%f took:%.5fs--"
                   % (epoch + 1, n_epoch, total_err / n_iter, time.time() - epoch_time))
             print("Valid:")
             self.validTest(self.validX, self.validY)
