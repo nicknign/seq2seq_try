@@ -878,14 +878,6 @@ answer:这些车相同的有:级别,座位数,变速箱,油耗,不同的是发�
 还有其他想要了解的内容么？瓦力也支持购车预算、口碑、车型对比等功能哦～
 engine:0.999384641647
 
-index:86
-gid:13
-input: 御风2015款2多少钱
-cmd:{"COMPARE":{"modeldesc": "\u5fa1\u98ce <engine> <transmisson> <autowarranty> <fuellabel> <fronttirespec> <speakernum> <drivemode> <factory> <modeldesc> <frontsuspensiontype> <rearsuspensiontype> <bodystruc2> <enginemodel> <maxtorquespeed> <bodystruc1> <lenwidhig> <factoryprice> <terminology> <number> <seatnum> (2", "ask_factoryprice": "\u591a\u5c11\u94b1"}}
-answer:具体差别需要根据具体车型来，说下具体想比较的车型？或者想用卡罗拉和哪个别的车系比较
-这款车的车型是君威2015款2.0TGS豪情运动版;
-engine:0.969984710217
-
 index:87
 gid:13
 input: 预算
@@ -4298,13 +4290,6 @@ answer:您想了解凯美瑞的什么呢？参数配置，车型，性能，价�
 还有其他想要了解的内容么？瓦力也支持购车预算、口碑、车型对比等功能哦～
 engine:200
 
-index:431
-gid:118
-input: 御风2015款2多少钱
-cmd:{"COMPARE":{"modeldesc": "\u5fa1\u98ce <engine> <transmisson> <autowarranty> <fuellabel> <fronttirespec> <speakernum> <drivemode> <factory> <modeldesc> <frontsuspensiontype> <rearsuspensiontype> <bodystruc2> <enginemodel> <maxtorquespeed> <bodystruc1> <lenwidhig> <factoryprice> <terminology> <number> <seatnum> (2", "ask_factoryprice": "\u591a\u5c11\u94b1"}}
-answer:您想了解凯美瑞的什么呢？参数配置，车型，性能，价格，内饰等
-engine:200
-
 index:432
 gid:118
 input: 油耗
@@ -5431,15 +5416,7 @@ cmd:{"COMPARE":{"modeldesc": "\u957f\u5b89cs75"}}
 answer:这些车系的高配版相比，相同的有:座位数,官方百公里加速,油耗,不同的是级别,发动机,变速箱,最高车速,价格,
 长安星卡2015款1.2LS201标准型加长的级别是微卡;发动机是1.2L98马力L4;变速箱是5挡手动;最高车速是110.0km/h;价格是4.24万;
 帅铃T62016款2.0T柴油旗舰型长轴D19TCID7的级别是低端皮卡;发动机是2.0T136马力L4;变速箱是6挡手动;最高车速是145.0km/h;价格是9.88万;
-
 engine:0.999981641769
-
-index:543
-gid:123
-input: 和林肯MKZ2017款2系有什么区别
-cmd:{"COMPARE":{"modeldesc": ["\u6797\u80afmkz <engine> <transmisson> <autowarranty> <fuellabel> <fronttirespec> <speakernum> <drivemode> <factory> <modeldesc> <frontsuspensiontype> <rearsuspensiontype> <bodystruc2> <enginemodel> <maxtorquespeed> <bodystruc1> <lenwidhig> <factoryprice> <terminology> <number> <seatnum> (2"]}}
-answer:您想了解君威的什么呢？参数配置，车型，性能，价格，内饰等
-engine:200
 
 index:544
 gid:123
@@ -5448,7 +5425,6 @@ cmd:{"COMPARE":{"modeldesc": ["\u541b\u5a012015\u6b3e1.6t\u7cbe\u82f1\u6280\u672
 answer:这些车相同的有:级别,座位数,变速箱,油耗,不同的是发动机,最高车速,官方百公里加速,价格,
 君威2015款2.0TGS豪情运动版的发动机是2.0T254马力L4;最高车速是240.0km/h;官方百公里加速是7.3s;价格是22.99万;
 君威2015款1.6T精英技术型的发动机是1.6T184马力L4;最高车速是205.0km/h;官方百公里加速是9.8s;价格是20.99万;
-
 engine:1.0
 
 index:545

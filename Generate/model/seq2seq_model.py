@@ -8,20 +8,21 @@ import os
 import sys
 from tensorlayer.layers import *
 from util import cut_string
+from fuzzywuzzy import fuzz
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 MAX_SLEN = 30
+FUZZ_TH = 70
 
 class Seq2Seqmodel(object):
     def __init__(self, path):
         self.paras_path = path
         self.encoder_metadata = {}
         self.decoder_metadata = {}
-        self.sess = tf.InteractiveSession()
-        # self.sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=False))
-        self.loadModel()
+        # self.sess = tf.InteractiveSession()
+        self.sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=False))
 
     def buildModel(self, flags):
         ###============= model
@@ -80,7 +81,6 @@ class Seq2Seqmodel(object):
         # loss = tf.contrib.legacy_seq2seq.sequence_loss(net_out.outputs, target_seqs, loss_weights, yvocab_size)
         self.loss = tl.cost.cross_entropy_seq_with_mask(logits=net_out.outputs, target_seqs=self.target_seqs,
                                                    input_mask=self.target_mask, return_details=False, name='cost')
-
         net_out.print_params(False)
 
         lr = flags['learning_rate']
@@ -116,16 +116,6 @@ class Seq2Seqmodel(object):
                 _decode_seqs = tl.prepro.pad_sequences(Y)
                 _target_mask = tl.prepro.sequences_get_mask(_target_seqs)
 
-                # # you can view the data here
-                # for i in range(len(X)):
-                #     print(i, [idx2w[id] for id in X[i]])
-                #     # print(i, [idx2w[id] for id in Y[i]])
-                #     print(i, [idx2w[id] for id in _target_seqs[i]])
-                #     print(i, [idx2w[id] for id in _decode_seqs[i]])
-                #     print(i, _target_mask[i])
-                #     print(len(_target_seqs[i]), len(_decode_seqs[i]), len(_target_mask[i]))
-                # exit()
-
                 _, err = self.sess.run([self.train_op, self.loss],
                                   {self.encode_seqs: X,
                                    self.decode_seqs: _decode_seqs,
@@ -138,8 +128,13 @@ class Seq2Seqmodel(object):
 
                 total_err += err
                 n_iter += 1
-            print("---Epoch[%d/%d] averaged loss:%f took:%.5fs---"
+            print("---Epoch[%d/%d] averaged loss:%f took:%.5fs-------------"
                   % (epoch + 1, n_epoch, total_err / n_iter, time.time() - epoch_time))
+            print("Valid:")
+            self.validTest(self.validX, self.validY)
+            print("Test:")
+            self.validTest(self.testX, self.testY)
+            print("---------------------------------------------------------")
 
             tl.files.save_npz(self.net.all_params, name='{}/net.npz'.format(self.paras_path), sess=self.sess)
         tf.logging.info("------model train end------")
@@ -158,11 +153,46 @@ class Seq2Seqmodel(object):
             self.buildModel(flags)
             tl.files.load_and_assign_npz(sess=self.sess, name='{}/net.npz', network=self.net)
 
+
+    def validTest(self, X, Y):
+        # go through the test set step by step, it will take a while.
+        start_time = time.time()
+        right = 0
+        start_id = 0
+        end_id = 2
+        # reset all states at the begining
+        for index, x in enumerate(X):
+                # 1. encode, get state
+                state = self.sess.run(self.net_rnn.final_state_encode,
+                                 {self.encode_seqs2: [x]})
+                # 2. decode, feed start_id, get first word
+                #   ref https://github.com/zsdonghao/tensorlayer/blob/master/example/tutorial_ptb_lstm_state_is_tuple.py
+                o, state = self.sess.run([self.y, self.net_rnn.final_state_decode],
+                                    {self.net_rnn.initial_state_decode: state,
+                                     self.decode_seqs2: [[start_id]]})
+                w_id = tl.nlp.sample_top(o[0], top_k=3)
+                # 3. decode, feed state iteratively
+                y_ = [w_id]
+                if w_id != end_id:
+                    for _ in range(MAX_SLEN):  # max sentence length
+                        o, state = self.sess.run([self.y, self.net_rnn.final_state_decode],
+                                            {self.net_rnn.initial_state_decode: state,
+                                             self.decode_seqs2: [[w_id]]})
+                        w_id = tl.nlp.sample_top(o[0], top_k=2)
+                        if w_id == end_id:
+                            break
+                        y_ = y_ + [w_id]
+                if fuzz.ratio(unicode(Y[index]), unicode(y_)) > FUZZ_TH:
+                    right += 1
+
+        test_acc = float(right)/len(Y)
+        print("Accuracy: %.3f took %.2fs" % (test_acc, time.time() - start_time))
+
+
     def predictSeq(self, seeds, asize = 5):
         start_id = 0
         end_id = 2
         responds = []
-        respond = u""
         for seed in seeds:
             seed_id = [self.encoder_metadata['w2idx'][w] if self.encoder_metadata['w2idx'].get(w) \
                        else self.encoder_metadata['w2idx'][u'UNK'] for w in cut_string(seed)]
@@ -179,18 +209,19 @@ class Seq2Seqmodel(object):
                 w = self.decoder_metadata['idx2w'][w_id]
                 # 3. decode, feed state iteratively
                 sentence = [w]
-                for _ in range(MAX_SLEN):  # max sentence length
-                    o, state = self.sess.run([self.y, self.net_rnn.final_state_decode],
-                                        {self.net_rnn.initial_state_decode: state,
-                                         self.decode_seqs2: [[w_id]]})
-                    w_id = tl.nlp.sample_top(o[0], top_k=2)
-                    w = self.decoder_metadata['idx2w'][w_id]
-                    if w_id == end_id:
-                        break
-                    sentence = sentence + [w]
-                respond = u"".join(sentence)
+                if w_id != end_id:
+                    for _ in range(MAX_SLEN):  # max sentence length
+                        o, state = self.sess.run([self.y, self.net_rnn.final_state_decode],
+                                            {self.net_rnn.initial_state_decode: state,
+                                             self.decode_seqs2: [[w_id]]})
+                        w_id = tl.nlp.sample_top(o[0], top_k=2)
+                        w = self.decoder_metadata['idx2w'][w_id]
+                        if w_id == end_id:
+                            break
+                        sentence = sentence + [w]
+                respond = u" ".join(sentence)
                 responds.append(respond)
-        return respond
+        return responds
 
     def load_train_data(self, trainX, trainY, testX, testY, validX, validY):
         self.trainX = trainX
@@ -221,6 +252,7 @@ class Seq2Seqmodel(object):
 
 if __name__ == "__main__":
     Model = Seq2Seqmodel("./seq2seq")
+    Model.loadModel()
     test_sentences = [u"你好啊"]
     answer = Model.predictSeq(test_sentences)
     print("ask:{}".format(test_sentences))

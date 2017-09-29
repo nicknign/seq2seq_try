@@ -54,6 +54,11 @@ def load_data(filepath):
                     answer = line[7:].strip()
                     answer_flag = True
                 elif line.startswith("engine:"):
+                    if cmd.find("<engine> <transmisson> <autowarranty>") != -1:
+                        question = []
+                        respond = []
+                        continue
+
                     if old_gid is None:
                         old_gid = gid
                     if gid != old_gid:
@@ -63,6 +68,8 @@ def load_data(filepath):
                     question.append(u"EOS")
                     question = insert_unk(question)
                     cmd_li = re.findall(u"\".+?\"", unicode(cmd))
+                    if cmd.find("COMBINE"):
+                        cmd_li = [u"COMBINE", u"EOS"]
                     if cmd_li:
                         temp = [i.strip("\"").decode('unicode-escape') for i in cmd_li]
                         respond.extend(temp)

@@ -62,3 +62,16 @@ Model = Seq2Seqmodel("./seq2seq")
 Model.saveDict(encoder_metadata, decoder_metadata)
 Model.load_train_data(trainX, trainY, testX, testY, validX, validY)
 Model.trainModel(flags)
+
+test_sentences = [u"你好啊"]
+answer = Model.predictSeq(test_sentences)
+print("ask:{}".format(test_sentences))
+print("answer:")
+for a in answer:
+    print(a)
+while (1):
+    senten = raw_input("ask>>>")
+    answer = Model.predictSeq([senten])
+    print("answer:")
+    for a in answer:
+        print(a)
