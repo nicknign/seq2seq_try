@@ -107,9 +107,8 @@ class Seq2Seqmodel(object):
             ## train an epoch
             total_err, n_iter = 0, 1
             epoch_time = time.time()
+            step_time = time.time()
             for X, Y in tl.iterate.minibatches(inputs=trainX, targets=trainY, batch_size=flags['batch_size'], shuffle=False):
-                step_time = time.time()
-
                 X = tl.prepro.pad_sequences(X)
                 _target_seqs = tl.prepro.pad_sequences(Y)
 
@@ -125,6 +124,7 @@ class Seq2Seqmodel(object):
                 if n_iter % 5 == 0:
                     print("Epoch[%d/%d] step:[%d/%d] loss:%f took:%.5fs" % (
                     epoch + 1, n_epoch, n_iter, n_step, err, time.time() - step_time))
+                    step_time = time.time()
 
                 total_err += err
                 n_iter += 1
