@@ -97,6 +97,8 @@ class Seq2Seqmodel(object):
         self.buildModel(flags)
         ###============= train
         print("------model train start------")
+        start_id = 1
+        end_id = 2
         n_epoch = flags['epochs']
         n_step = int(len(self.trainX) / flags['batch_size'])
         for epoch in range(n_epoch):
@@ -110,9 +112,10 @@ class Seq2Seqmodel(object):
             for X, Y in tl.iterate.minibatches(inputs=trainX, targets=trainY, batch_size=flags['batch_size'], shuffle=False):
                 X = tl.prepro.pad_sequences(X)
                 _target_seqs = tl.prepro.pad_sequences(Y)
-
-                _decode_seqs = tl.prepro.pad_sequences(Y)
                 _target_mask = tl.prepro.sequences_get_mask(_target_seqs)
+
+                _decode_seqs = tl.prepro.sequences_add_start_id(Y, start_id=start_id, remove_last=True)
+                _decode_seqs = tl.prepro.pad_sequences(_decode_seqs)
 
                 _, err = self.sess.run([self.train_op, self.loss],
                                   {self.encode_seqs: X,
@@ -189,7 +192,7 @@ class Seq2Seqmodel(object):
 
 
     def predictSeq(self, seeds, asize = 5):
-        start_id = 0
+        start_id = 1
         end_id = 2
         responds = []
         for seed in seeds:
@@ -252,7 +255,7 @@ class Seq2Seqmodel(object):
 if __name__ == "__main__":
     Model = Seq2Seqmodel("./seq2seq")
     Model.loadModel()
-    test_sentences = [u"你好啊"]
+    test_sentences = [u"你好"]
     answer = Model.predictSeq(test_sentences)
     print("ask:{}".format(test_sentences))
     print("answer:")

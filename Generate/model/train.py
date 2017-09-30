@@ -7,7 +7,7 @@ from seq2seq_model import Seq2Seqmodel
 from util import *
 
 filepath = os.path.split(os.path.realpath(__file__))[0]
-datapath = "{}/../data/dialog.txt".format(filepath)
+datapath = "{}/../data/simple_dialog.txt".format(filepath)
 
 reload(sys)
 sys.setdefaultencoding('utf8')

@@ -27,7 +27,7 @@ def insert_unk(question):
 
 def load_data(filepath):
     encoder_metadata = {'idx2w':[u"PAD", u"UNK", u"EOS"], 'w2idx':{}}
-    decoder_metadata = {'idx2w':[u"SOS", u"PAD", u"EOS"], 'w2idx':{}}
+    decoder_metadata = {'idx2w':[u"PAD", u"SOS", u"EOS"], 'w2idx':{}}
 
     with open(filepath, "r") as fp:
         lines = fp.readlines()
