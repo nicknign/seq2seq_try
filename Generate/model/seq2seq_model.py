@@ -15,6 +15,7 @@ sys.setdefaultencoding('utf8')
 
 MAX_SLEN = 30
 FUZZ_TH = 70
+EARLY_STOP = 10
 
 class Seq2Seqmodel(object):
     def __init__(self, path):
@@ -100,7 +101,9 @@ class Seq2Seqmodel(object):
         start_id = 1
         end_id = 2
         n_epoch = flags['epochs']
-        n_step = int(len(self.trainX) / flags['batch_size'])
+        max_valid_acc = 0
+        max_test_acc = 0
+        early_stop = 0
         for epoch in range(n_epoch):
             ## shuffle training data
             from sklearn.utils import shuffle
@@ -108,7 +111,6 @@ class Seq2Seqmodel(object):
             ## train an epoch
             total_err, n_iter = 0, 1
             epoch_time = time.time()
-            step_time = time.time()
             for X, Y in tl.iterate.minibatches(inputs=trainX, targets=trainY, batch_size=flags['batch_size'], shuffle=False):
                 X = tl.prepro.pad_sequences(X)
                 _target_seqs = tl.prepro.pad_sequences(Y)
@@ -123,21 +125,25 @@ class Seq2Seqmodel(object):
                                    self.target_seqs: _target_seqs,
                                    self.target_mask: _target_mask})
 
-                # if n_iter % flags['print_epochs'] == 0:
-                #     print("Epoch[%d/%d] step:[%d/%d] loss:%f took:%.5fs" % (
-                #     epoch + 1, n_epoch, n_iter, n_step, err, time.time() - step_time))
-                #     step_time = time.time()
-
                 total_err += err
                 n_iter += 1
             print("--------------Epoch[%d/%d] averaged loss:%f took:%.5fs"
                   % (epoch + 1, n_epoch, total_err / n_iter, time.time() - epoch_time))
-            # print("Valid:")
-            # self.validTest(self.validX, self.validY)
-            # print("Test:")
-            # self.validTest(self.testX, self.testY)
-            if epoch % flags['print_epochs'] == 0:
+            print("Valid:")
+            valid_acc = self.validTest(self.validX, self.validY)
+            print("Test:")
+            test_acc = self.validTest(self.testX, self.testY)
+            if valid_acc > max_valid_acc or test_acc > max_test_acc:
+                max_valid_acc = valid_acc
+                max_test_acc = test_acc
+                early_stop = 0
                 tl.files.save_npz(self.net.all_params, name='{}/net.npz'.format(self.paras_path), sess=self.sess)
+            else:
+                early_stop += 1
+                if early_stop >= EARLY_STOP:
+                    print("--no improve in 10 epoch, early stop--")
+                    break
+
         print("------model train end------")
         tl.files.save_npz(self.net.all_params, name='{}/net.npz'.format(self.paras_path), sess=self.sess)
 
@@ -189,6 +195,7 @@ class Seq2Seqmodel(object):
 
         test_acc = float(right)/len(Y)
         print("Accuracy: %.3f took %.2fs" % (test_acc, time.time() - start_time))
+        return test_acc
 
 
     def predictSeq(self, seeds, asize = 5):

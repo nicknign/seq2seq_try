@@ -32,8 +32,7 @@ tf.flags.DEFINE_integer("batch_size", 10, "Batch size for training.")
 tf.flags.DEFINE_integer("embedding_dimension", 128 , "embedding dimension")
 tf.flags.DEFINE_integer("seq2seq_layer", 1, "seq2seq_layer.")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.5, "Dropout keep probability (default: 0.5)")
-tf.flags.DEFINE_integer("epochs", 3000, "Number of epochs to train for.")
-tf.flags.DEFINE_integer("print_epochs", 10, "print_epochs")
+tf.flags.DEFINE_integer("epochs", 100, "Number of epochs to train for.")
 
 
 xseq_len = len(trainX)
@@ -51,13 +50,12 @@ flags = {'learning_rate': FLAGS.learning_rate,
          'embedding_dimension': FLAGS.embedding_dimension,
          'seq2seq_layer': FLAGS.seq2seq_layer,
          'dropout_keep_prob': FLAGS.dropout_keep_prob,
-         'epochs': FLAGS.epochs,
-         'print_epochs': FLAGS.print_epochs}
+         'epochs': FLAGS.epochs}
 
 print("parameters:\n train seq_len:{}\nbatch size:{}\nxvocab size:{}\nyvocab size:{}\nembedding size:{}".format(
     xseq_len, flags['batch_size'], xvocab_size, yvocab_size, flags['embedding_dimension']))
-print("dropout_keep_prob:{}\nepochs:{}\nprint_epochs:{}".format(
-    flags['dropout_keep_prob'], flags['epochs'], flags['print_epochs']))
+print("dropout_keep_prob:{}\nepochs:{}\n".format(
+    flags['dropout_keep_prob'], flags['epochs']))
 
 
 ###============= model
