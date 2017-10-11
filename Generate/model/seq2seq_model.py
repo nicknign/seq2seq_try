@@ -104,6 +104,7 @@ class Seq2Seqmodel(object):
         max_valid_acc = 0
         max_test_acc = 0
         early_stop = 0
+        n_step = int(len(self.trainX) / flags['batch_size'])
         for epoch in range(n_epoch):
             ## shuffle training data
             from sklearn.utils import shuffle
@@ -111,6 +112,7 @@ class Seq2Seqmodel(object):
             ## train an epoch
             total_err, n_iter = 0, 1
             epoch_time = time.time()
+            step_time = time.time()
             for X, Y in tl.iterate.minibatches(inputs=trainX, targets=trainY, batch_size=flags['batch_size'], shuffle=False):
                 X = tl.prepro.pad_sequences(X)
                 _target_seqs = tl.prepro.pad_sequences(Y)
@@ -124,6 +126,11 @@ class Seq2Seqmodel(object):
                                    self.decode_seqs: _decode_seqs,
                                    self.target_seqs: _target_seqs,
                                    self.target_mask: _target_mask})
+
+                if n_iter % flags['print_epochs'] == 0:
+                    print("Epoch[%d/%d] step:[%d/%d] loss:%f took:%.5fs" % (
+                    epoch + 1, n_epoch, n_iter, n_step, err, time.time() - step_time))
+                    step_time = time.time()
 
                 total_err += err
                 n_iter += 1
