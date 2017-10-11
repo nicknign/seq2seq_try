@@ -1,1 +1,1 @@
-{"epochs": 100, "embedding_dimension": 128, "print_epochs": 100, "max_grad_norm": 30, "seq2seq_layer": 1, "learning_rate": 0.01, "dropout_keep_prob": 0.5, "batch_size": 32}
+{"epochs": 3000, "embedding_dimension": 128, "print_epochs": 10, "max_grad_norm": 5, "seq2seq_layer": 1, "learning_rate": 0.01, "dropout_keep_prob": 0.5, "batch_size": 10}

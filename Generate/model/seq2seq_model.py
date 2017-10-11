@@ -123,20 +123,19 @@ class Seq2Seqmodel(object):
                                    self.target_seqs: _target_seqs,
                                    self.target_mask: _target_mask})
 
-                if n_iter % flags['print_epochs'] == 0:
-                    print("Epoch[%d/%d] step:[%d/%d] loss:%f took:%.5fs" % (
-                    epoch + 1, n_epoch, n_iter, n_step, err, time.time() - step_time))
-                    step_time = time.time()
+                # if n_iter % flags['print_epochs'] == 0:
+                #     print("Epoch[%d/%d] step:[%d/%d] loss:%f took:%.5fs" % (
+                #     epoch + 1, n_epoch, n_iter, n_step, err, time.time() - step_time))
+                #     step_time = time.time()
 
                 total_err += err
                 n_iter += 1
-            print("---Epoch[%d/%d] averaged loss:%f took:%.5fs--"
+            print("--------------Epoch[%d/%d] averaged loss:%f took:%.5fs"
                   % (epoch + 1, n_epoch, total_err / n_iter, time.time() - epoch_time))
             print("Valid:")
             self.validTest(self.validX, self.validY)
             print("Test:")
             self.validTest(self.testX, self.testY)
-            print("---------------------------------------------------------")
 
             tl.files.save_npz(self.net.all_params, name='{}/net.npz'.format(self.paras_path), sess=self.sess)
         print("------model train end------")
@@ -153,7 +152,7 @@ class Seq2Seqmodel(object):
         if os.path.exists("{}/paras.json".format(self.paras_path)) and os.path.exists("{}/net.npz".format(self.paras_path)):
             flags = self.loadflags()
             self.buildModel(flags)
-            tl.files.load_and_assign_npz(sess=self.sess, name='{}/net.npz', network=self.net)
+            tl.files.load_and_assign_npz(sess=self.sess, name='{}/net.npz'.format(self.paras_path), network=self.net)
 
 
     def validTest(self, X, Y):
@@ -198,6 +197,7 @@ class Seq2Seqmodel(object):
         for seed in seeds:
             seed_id = [self.encoder_metadata['w2idx'][w] if self.encoder_metadata['w2idx'].get(w) \
                        else self.encoder_metadata['w2idx'][u'UNK'] for w in cut_string(seed)]
+            seed_id.append(end_id)
             for _ in range(asize):  # 1 Query --> 5 Reply
                 # 1. encode, get state
                 state = self.sess.run(self.net_rnn.final_state_encode,

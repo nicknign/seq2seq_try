@@ -27,13 +27,13 @@ validY = trans_idx(validY, decoder_metadata["w2idx"])
 
 ###============= parameters
 tf.flags.DEFINE_float("learning_rate", 0.01, "Learning rate for SGD.")
-tf.flags.DEFINE_integer("max_grad_norm", 30, "max_grad_norm.")
-tf.flags.DEFINE_integer("batch_size", 32, "Batch size for training.")
+tf.flags.DEFINE_integer("max_grad_norm", 5, "max_grad_norm.")
+tf.flags.DEFINE_integer("batch_size", 10, "Batch size for training.")
 tf.flags.DEFINE_integer("embedding_dimension", 128 , "embedding dimension")
 tf.flags.DEFINE_integer("seq2seq_layer", 1, "seq2seq_layer.")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.5, "Dropout keep probability (default: 0.5)")
-tf.flags.DEFINE_integer("epochs", 100, "Number of epochs to train for.")
-tf.flags.DEFINE_integer("print_epochs", 100, "print_epochs")
+tf.flags.DEFINE_integer("epochs", 3000, "Number of epochs to train for.")
+tf.flags.DEFINE_integer("print_epochs", 10, "print_epochs")
 
 
 xseq_len = len(trainX)
@@ -66,7 +66,7 @@ Model.saveDict(encoder_metadata, decoder_metadata)
 Model.load_train_data(trainX, trainY, testX, testY, validX, validY)
 Model.trainModel(flags)
 
-test_sentences = [u"你好啊"]
+test_sentences = [u"你好"]
 answer = Model.predictSeq(test_sentences)
 print("ask:{}".format(test_sentences))
 print("answer:")
