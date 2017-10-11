@@ -72,9 +72,13 @@ print("ask:{}".format(test_sentences))
 print("answer:")
 for a in answer:
     print(a)
+context = ""
 while (1):
     senten = raw_input("ask>>>")
-    answer = Model.predictSeq([senten])
+    context = context + senten + "EOS"
+    answer = Model.predictSeq([context])
+    context = context + answer[0]
+    context = context[-150:]
     print("answer:")
     for a in answer:
         print(a)

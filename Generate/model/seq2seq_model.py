@@ -84,12 +84,12 @@ class Seq2Seqmodel(object):
         net_out.print_params(False)
 
         lr = flags['learning_rate']
-        # self.train_op = tf.train.AdamOptimizer(learning_rate=lr).minimize(self.loss)
+        self.train_op = tf.train.AdamOptimizer(learning_rate=lr).minimize(self.loss)
         # Truncated Backpropagation for training (option)
-        max_grad_norm = flags['max_grad_norm']
-        grads, _ = tf.clip_by_global_norm(tf.gradients(self.loss, net_out.all_params),max_grad_norm)
-        optimizer = tf.train.GradientDescentOptimizer(lr)
-        self.train_op = optimizer.apply_gradients(zip(grads, net_out.all_params))
+        # max_grad_norm = flags['max_grad_norm']
+        # grads, _ = tf.clip_by_global_norm(tf.gradients(self.loss, net_out.all_params),max_grad_norm)
+        # optimizer = tf.train.GradientDescentOptimizer(lr)
+        # self.train_op = optimizer.apply_gradients(zip(grads, net_out.all_params))
         tl.layers.initialize_global_variables(self.sess)
 
     def trainModel(self, flags):
@@ -132,13 +132,14 @@ class Seq2Seqmodel(object):
                 n_iter += 1
             print("--------------Epoch[%d/%d] averaged loss:%f took:%.5fs"
                   % (epoch + 1, n_epoch, total_err / n_iter, time.time() - epoch_time))
-            print("Valid:")
-            self.validTest(self.validX, self.validY)
-            print("Test:")
-            self.validTest(self.testX, self.testY)
-
-            tl.files.save_npz(self.net.all_params, name='{}/net.npz'.format(self.paras_path), sess=self.sess)
+            # print("Valid:")
+            # self.validTest(self.validX, self.validY)
+            # print("Test:")
+            # self.validTest(self.testX, self.testY)
+            if epoch % flags['print_epochs'] == 0:
+                tl.files.save_npz(self.net.all_params, name='{}/net.npz'.format(self.paras_path), sess=self.sess)
         print("------model train end------")
+        tl.files.save_npz(self.net.all_params, name='{}/net.npz'.format(self.paras_path), sess=self.sess)
 
     def loadModel(self):
         if os.path.exists("{}/encoder_metadata.pkl".format(self.paras_path)) and \
@@ -219,6 +220,7 @@ class Seq2Seqmodel(object):
                         w_id = tl.nlp.sample_top(o[0], top_k=2)
                         w = self.decoder_metadata['idx2w'][w_id]
                         if w_id == end_id:
+                            sentence = sentence + [w]
                             break
                         sentence = sentence + [w]
                 respond = u" ".join(sentence)
@@ -261,9 +263,13 @@ if __name__ == "__main__":
     print("answer:")
     for a in answer:
         print(a)
+    context = ""
     while(1):
         senten = raw_input("ask>>>")
-        answer = Model.predictSeq([senten])
+        context = context + senten + "EOS"
+        answer = Model.predictSeq([context])
+        context = context + answer[0]
+        context = context[-150:]
         print("answer:")
         for a in answer:
             print(a)

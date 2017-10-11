@@ -65,7 +65,7 @@ def load_data(filepath):
                         question = []
                         old_gid = gid
 
-                    question = []
+                    # question = []
 
                     question.extend(cut_string(inputstr))
                     question.append(u"EOS")
@@ -90,7 +90,7 @@ def load_data(filepath):
 
                     Q.append(copy.deepcopy(question))
                     A.append(respond)
-                    # question.extend(respond)
+                    question.extend(respond)
                     question = question[-MAX_HIS:]
                     respond = []
                     answer_flag = False
