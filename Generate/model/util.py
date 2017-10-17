@@ -107,7 +107,7 @@ def load_data(filepath):
     return encoder_metadata, decoder_metadata, Q, A
 
 def split_dataset(x, y):
-    ratio = [0.7, 0.15, 0.15]
+    ratio = [0.8, 0.1, 0.1]
     # number of examples
     data_len = len(x)
     lens = [int(data_len * item) for item in ratio]
